@@ -28,5 +28,5 @@ This package relies on the following algorithms:
 2. Self-Tuning Spectral Clustering: http://www.vision.caltech.edu/lihi/Demos/SelfTuningClustering.html
 3. Primal-Dual Scene Flow: https://vision.in.tum.de/research/sceneflow
 
-#License
+# License
 This project is licensed under the MIT License - see the LICENSE.md file for details.
