@@ -20,10 +20,10 @@ Paper will soon be available.
 2. cd 3DMS
 3. mkdir build && cd build
 4. cmake .. -DCMAKE_BUILD_TYPE=Release && make
-- Usage:
+- Usage
 
 An executable is provided as an example and it will be located in the bin directory. A path to the directory containing the RGB data sequence must be provided, as well as a path to the directory containing the corresponding Depth data sequence. A last parameter must be provided which corresponds to how many points must be initially sub-sampled from the point cloud (e.g. 1000-1500).
-- Example:
+- Example
 
 ./example_offline_sf_ksl <path-to-RGB-dir> <path-toDepth-dir> number-sub-samples
 
