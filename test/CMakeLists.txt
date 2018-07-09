@@ -1,0 +1,4 @@
+add_executable(example_offline_sf_ksl main_offline_sf_ksl.cpp)
+
+target_link_libraries(example_offline_sf_ksl offline_sf_ksl)
+

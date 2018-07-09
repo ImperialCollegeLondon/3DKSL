@@ -1,0 +1,7 @@
+add_library(kmeans SHARED kmeans.cpp)
+add_library(spectral_clustering SHARED rotation_evaluation.cpp spectral_clustering.cpp)
+add_library(sparse_subspace_clustering SHARED hungarian.cpp random_generators.cpp sparse_subspace_clustering.cpp)
+
+target_link_libraries(spectral_clustering kmeans)
+target_link_libraries(sparse_subspace_clustering spectral_clustering)
+
