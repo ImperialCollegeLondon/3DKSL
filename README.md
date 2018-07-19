@@ -29,4 +29,4 @@ This package relies on the following algorithms:
 3. Primal-Dual Scene Flow: https://vision.in.tum.de/research/sceneflow
 
 # License
-This project is licensed under the MIT License - see the LICENSE.md file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.

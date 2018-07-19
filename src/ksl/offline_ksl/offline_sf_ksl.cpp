@@ -112,9 +112,9 @@ KinematicStructureLearning<pointT>::compute(
         continue;
       }
 
-      float x=pcloudSubSampled_->at(k).x;
-      float y=pcloudSubSampled_->at(k).y;
-      float z=pcloudSubSampled_->at(k).z;
+      //float x=pcloudSubSampled_->at(k).x;
+      //float y=pcloudSubSampled_->at(k).y;
+      //float z=pcloudSubSampled_->at(k).z;
 
       pcloudSubSampled_->at(k).x+=dyp(ind);
       pcloudSubSampled_->at(k).y-=dzp(ind);
@@ -123,9 +123,9 @@ KinematicStructureLearning<pointT>::compute(
       octree.nearestKSearch(pcloudSubSampled_->at(k), 1, indVec, indVecDist);
       if(pcloud_->at(indVec[0]).z>0.0)
       {
-        if(fabs(pcloud_->at(indVec[0]).x-x-dyp(ind))<dEps &&
-          fabs(pcloud_->at(indVec[0]).y-y+dzp(ind))<dEps &&
-          fabs(pcloud_->at(indVec[0]).z-z-dxp(ind))<dEps)
+        if(fabs(pcloud_->at(indVec[0]).x-pcloudSubSampled_->at(k).x)<dEps &&
+          fabs(pcloud_->at(indVec[0]).y-pcloudSubSampled_->at(k).y)<dEps &&
+          fabs(pcloud_->at(indVec[0]).z-pcloudSubSampled_->at(k).z)<dEps)
         {
           pcloudSubSampled_->at(k)=pcloud_->at(indVec[0]);
         }
