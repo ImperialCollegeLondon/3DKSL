@@ -167,7 +167,7 @@ KinematicStructureLearning<pointT>::compute(
     std::cout<<"number of lost points: "<<nLostPoints<<std::endl;
     clock_t t=clock();
     subspaceClustering_.compute(dataPoints_, 0.0, 0, 
-      (frames_>1) ? 1 : 0, outlier_, 0, rho_, 0, ceilf(logf(nPointsSubSampled_)), 0.85);
+      (frames_>1) ? 1 : 0, outlier_, 0, rho_, 0, ceilf(log2f(nPointsSubSampled_)), 0.1);
     t=clock()-t;
     std::cout<<"total time elapsed: "<<((float) t/CLOCKS_PER_SEC)<<" [sec]"<<std::endl;
     frame_=0;
