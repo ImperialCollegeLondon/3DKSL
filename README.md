@@ -1,5 +1,6 @@
-# 3DMS
-3D Motion Segmentation of Articulated Rigid Bodies based on RGB-D data. 3DMS performs 3D motion segmentation of articulated rigid bodies from a single-view RGB-D data sequence.
+# 3DKSL
+3D Motion Segmentation of Articulated Rigid Bodies based on RGB-D data.
+3DMS performs 3D motion segmentation of articulated rigid bodies from a single-view RGB-D data sequence.
 
 Paper will soon be available.
 
@@ -12,8 +13,8 @@ Paper will soon be available.
 5. libigl: https://github.com/libigl/libigl
 6. Spectra: https://spectralib.org
 - General
-1. git clone https://github.com/ImperialCollegeLondon/3DMS.git
-2. cd 3DMS
+1. git clone https://github.com/ImperialCollegeLondon/3DKSL.git
+2. cd 3DKSL
 3. mkdir build && cd build
 4. cmake .. -DCMAKE_BUILD_TYPE=Release && make
 - Usage
@@ -30,3 +31,4 @@ This package relies on the following algorithms:
 
 # License
 This project is licensed under the MIT License - see the LICENSE file for details.
+
