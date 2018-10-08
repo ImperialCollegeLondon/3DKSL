@@ -1,9 +1,9 @@
 #ifndef TICTOC_HPP
 #define TICTOC_HPP
 
+#include <ctime>
 #include <iostream>
 #include <string>
-#include <time.h>
 
 namespace ksl
 {

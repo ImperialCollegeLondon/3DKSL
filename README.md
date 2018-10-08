@@ -2,7 +2,12 @@
 3D Motion Segmentation of Articulated Rigid Bodies based on RGB-D data.
 3DMS performs 3D motion segmentation of articulated rigid bodies from a single-view RGB-D data sequence.
 
-Paper will soon be available.
+@inproceedings{nunes18motionseg,
+	author = {Urbano Miguel Nunes and Yiannis Demiris},
+	booktitle = {Proceedings of the British Machine Vision Conference ({BMVC})},
+	title = {3D Motion Segmentation of Articulated Rigid Bodies based on RGB-D Data},
+	year = {2018}
+}
 
 # Requirements
 - Dependencies
