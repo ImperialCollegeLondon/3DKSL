@@ -98,7 +98,8 @@ SpectralClustering<T>::clusterRotate(void)
   std::cout<<"2/"<<nEigVecs_<<" eval: "<<rotEval_.rotationQuality()<<std::endl;
   for(int i=3; i<=nEigVecs_; i++)
   {
-    eigVecs.conservativeResize(nData_, i);
+		eigVecs=rotEval_.eigVecsRotated();
+    eigVecs.conservativeResize(Eigen::NoChange, i);
     eigVecs.col(i-1)=eigVecs_.col(i-1);
 
     rotEval_.compute(eigVecs);
