@@ -210,4 +210,3 @@ struct fieldAndPresence {
 __device__ void bubbleSortDev(fieldAndPresence array[], unsigned int num_elem);
 
 #endif // PD_SCENE_FLOW_CUDA_H
-

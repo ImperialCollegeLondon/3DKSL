@@ -1,4 +1,4 @@
-#include <ksl/clustering/kmeans.hpp>
+#include <ksl/clustering/kmeans.h>
 
 namespace ksl
 {
@@ -11,158 +11,146 @@ KMeans<T>::KMeans(void)
 {}
 
 template<typename T>
+KMeans<T>::KMeans(
+  const int& initMethod, const int& nIter):
+  params_(initMethod, nIter)
+{}
+
+template<typename T>
+KMeans<T>::KMeans(
+  const KMeansParams<T>& params):
+  params_(params)
+{}
+
+template<typename T>
 KMeans<T>::~KMeans(void)
 {}
 
-template<typename T> void
-KMeans<T>::compute(
-  const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> &data,
-  const int nClusters,
-  const int nIter,
-  const int initMethod,
-	const Eigen::VectorXi &initClusters)
+template<typename T>
+void
+KMeans<T>::computeClusters(
+  const mtxT& dMtx)
 {
-  nData_=data.rows();
-  nClusters_=nClusters;
-  nDims_=data.cols();
+  if(this->bparams_.nClusters<=0)
+  {
+    return;
+  }
 
-  init(data, initMethod, initClusters);
-
+  init(dMtx);
   T prevDist=1.0, totalDist=0.0;
-  Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> dist(nData_, nClusters_);
-  dist.setZero();
-  for(int i=0; i<nIter && prevDist!=totalDist; i++)
+  for(int i=0; i<params_.nIter && prevDist!=totalDist; ++i)
   {
     prevDist=totalDist;
-    totalDist=assignClosest(data, dist);
-    updateClustersCentres(data);
+    totalDist=assignClosest(dMtx);
+    clustersCentresUpdate(dMtx);
   }
 }
 
-template<typename T> void
+template<typename T>
+void
 KMeans<T>::init(
-  const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> &data,
-  const int initMethod,
-	const Eigen::VectorXi &initClusters)
+  const mtxT& dMtx)
 {
-  clusters_.resize(nData_);
-  clusters_.setZero();
-  clustersCentres_.resize(nClusters_, nDims_);
-
-  /* random sample from data rows */
-  if(initMethod==0)
+  clustersCentres_.resize(this->bparams_.nClusters, this->bparams_.nDims);
+  switch(params_.initMethod)
   {
-    Eigen::VectorXi ind(Eigen::VectorXi::LinSpaced(nData_, 0, nData_-1));
-    std::random_shuffle(ind.data(), ind.data()+nData_);
-    for(int i=0; i<nClusters_; i++)
-    {
-      clustersCentres_.row(i)=data.row(ind(i));
-    }
+    case 0: initRandom(dMtx); break;
+    case 1: initRandomPlus(dMtx); break;
+    default: clustersCentresUpdate(dMtx); break;
   }
-  /* plusplus random sample from data rows */
-  else if(initMethod==1)
-  {
-    int choice=rand()%nData_;
-    clustersCentres_.row(0)=data.row(choice);
-    Eigen::Matrix<T, Eigen::Dynamic, 1> curDist((data.rowwise()-clustersCentres_.row(0)).array().square().rowwise().sum());
-    Eigen::Matrix<T, Eigen::Dynamic, 1> minDist(curDist);
-
-    if(nClusters_<2)
-    {
-      return;
-    }
-
-    choice=discreteRand(minDist);
-    clustersCentres_.row(1)=data.row(choice);
-    for(int i=2; i<nClusters_; i++)
-    {
-      curDist=(data.rowwise()-clustersCentres_.row(i-1)).array().square().rowwise().sum();
-      minDist=curDist.cwiseMin(minDist);
-      choice=discreteRand(minDist);
-      clustersCentres_.row(i)=data.row(choice);
-    }
-  }
-  /* given prior clusters */
-	else if(initMethod==2)
-	{
-		clusters_=initClusters;
-		updateClustersCentres(data);
-	}
 }
 
-template<typename T> T
+template<typename T>
+T
 KMeans<T>::assignClosest(
-  const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> &data,
-  Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> &dist)
+  const mtxT& dMtx)
 {
   T totalDist=0.0;
-  int indMin;
-
-  pairwiseDist(data, dist);
-
-  for(int i=0; i<nData_; i++)
+  mtxT wMtx;
+  utils::pairwiseDistanceEuclidean<T>(dMtx, clustersCentres_, wMtx);
+  vecI& clusters(this->clusters_);
+#ifdef _OPENMP
+  #pragma omp parallel for shared(clusters, wMtx) reduction(+ : totalDist)
+#endif
+  for(int i=0; i<this->bparams_.nPoints; ++i)
   {
-    totalDist+=dist.row(i).minCoeff(&indMin);
-    clusters_(i)=indMin;
+    int indMin;
+    totalDist+=wMtx.row(i).minCoeff(&indMin);
+    clusters(i)=indMin;
   }
   return totalDist;
 }
 
-template<typename T> void
-KMeans<T>::updateClustersCentres(
-  const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> &data)
+template<typename T>
+void
+KMeans<T>::clustersCentresUpdate(
+  const mtxT& dMtx)
 {
-  Eigen::Matrix<T, Eigen::Dynamic, 1> nPerCluster(nClusters_);
+  vecI nPerCluster(this->bparams_.nClusters);
   nPerCluster.setZero();
   clustersCentres_.setZero();
-
-  for(int i=0; i<nData_; i++)
+  for(int i=0; i<this->bparams_.nPoints; ++i)
   {
-    clustersCentres_.row(clusters_(i))+=data.row(i);
-    nPerCluster(clusters_(i))++;
+    clustersCentres_.row(this->clusters_(i))+=dMtx.row(i);
+    ++nPerCluster(this->clusters_(i));
   }
-  for(int i=0; i<nClusters_; i++)
+  for(int i=0; i<this->bparams_.nClusters; ++i)
   {
-    if(nPerCluster(i)>0.0)
+    if(nPerCluster(i)>0)
     {
       clustersCentres_.row(i)/=nPerCluster(i);
     }
   }
 }
 
-template<typename T> void
-KMeans<T>::pairwiseDist(
-  const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> &data,
-  Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> &dist)
+template<typename T>
+void
+KMeans<T>::initRandom(
+  const mtxT& dMtx)
 {
-  if(nDims_<16)
+  vecI indVec(vecI::LinSpaced(this->bparams_.nPoints, 0, this->bparams_.nPoints-1));
+  for(int i=0; i<this->bparams_.nClusters; ++i)
   {
-    for(int i=0; i<nClusters_; i++)
-    {
-      dist.col(i)=(data.rowwise()-clustersCentres_.row(i)).array().square().rowwise().sum();
-    }
-  }
-  else
-  {
-    dist.noalias()=-2.0*data*clustersCentres_.transpose();
-    dist.array().rowwise()+=clustersCentres_.array().square().rowwise().sum().transpose().row(0);
+    const int ind=utils::rnd<int>(0, this->bparams_.nPoints-1-i);
+    clustersCentres_.row(i)=dMtx.row(indVec(ind));
+    indVec(ind)=indVec(this->bparams_.nPoints-1-i);
   }
 }
 
-template<typename T> int
-KMeans<T>::discreteRand(
-  const Eigen::Matrix<T, Eigen::Dynamic, 1> &vec)
+template<typename T>
+void
+KMeans<T>::initRandomPlus(
+  const mtxT& dMtx)
 {
-  T r=vec.sum()*rand()/RAND_MAX;
+  clustersCentres_.row(0)=dMtx.row(utils::rnd<int>(0, this->bparams_.nPoints-1));
+  if(this->bparams_.nClusters<2)
+  {
+    return;
+  }
+  vecT curDist((dMtx.rowwise()-clustersCentres_.row(0)).array().square().rowwise().sum());
+  vecT minDist(curDist);
+  clustersCentres_.row(1)=dMtx.row(discreteRand(minDist));
+  for(int i=2; i<this->bparams_.nClusters; ++i)
+  {
+    curDist=(dMtx.rowwise()-clustersCentres_.row(i-1)).array().square().rowwise().sum();
+    minDist=curDist.cwiseMin(minDist);
+    clustersCentres_.row(i)=dMtx.row(discreteRand(minDist));
+  }
+}
+
+template<typename T>
+int
+KMeans<T>::discreteRand(
+  const vecT& vec)
+{
+  const T r=vec.sum()*utils::rnd<T>(0.0, 1.0);
   T curSum=vec(0);
   int val=0;
-
   while(r>=curSum && val<vec.size()-1)
   {
-    val++;
+    ++val;
     curSum+=vec(val);
   }
-
   return val;
 }
 
@@ -172,4 +160,3 @@ template class KMeans<float>;
 }
 
 }
-

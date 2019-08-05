@@ -1,5 +1,5 @@
-#ifndef IMAGE_IO_HPP
-#define IMAGE_IO_HPP
+#ifndef IMAGE_IO_H
+#define IMAGE_IO_H
 
 #include <dirent.h>
 #include <Eigen/Core>
@@ -15,67 +15,72 @@ namespace ksl
 namespace utils
 {
 
-template<typename _Tp, int _rows, int _cols, int _options, int _maxRows, int _maxCols> static inline void
-eigen2cv(const Eigen::Matrix<_Tp, _rows, _cols, _options, _maxRows, _maxCols> &src, cv::Mat &dst)
+template<typename T, int _rows, int _cols, int _options, int _maxRows, int _maxCols>
+inline void
+eigen2cv(
+  const Eigen::Matrix<T, _rows, _cols, _options, _maxRows, _maxCols>& src,
+  cv::Mat& dst)
 {
   if(!(src.Flags & Eigen::RowMajorBit))
   {
-    cv::Mat _src(src.cols(), src.rows(), cv::traits::Type<_Tp>::value,
-      (void*) src.data(), src.stride()*sizeof(_Tp));
+    cv::Mat _src(src.cols(), src.rows(), cv::traits::Type<T>::value,
+      (void*) src.data(), src.stride()*sizeof(T));
     cv::transpose(_src, dst);
   }
   else
   {
-    cv::Mat _src(src.rows(), src.cols(), cv::traits::Type<_Tp>::value,
-      (void*) src.data(), src.stride()*sizeof(_Tp));
+    cv::Mat _src(src.rows(), src.cols(), cv::traits::Type<T>::value,
+      (void*) src.data(), src.stride()*sizeof(T));
     _src.copyTo(dst);
   }
 }
 
-int
+bool
 loadRGB(
-  const std::string &pathDir,
-  cv::Mat &img)
+  const std::string& pathDir,
+  cv::Mat& img)
 {
   img=cv::imread(pathDir, CV_LOAD_IMAGE_COLOR);
   if(img.empty())
   {
-    return 0;
+    return false;
   }
-  return 1;
+  return true;
 }
 
-int
+bool
 loadGray(
-  const std::string &pathDir,
-  cv::Mat &img)
+  const std::string& pathDir,
+  cv::Mat& img)
 {
   img=cv::imread(pathDir, CV_LOAD_IMAGE_GRAYSCALE);
   if(img.empty())
   {
-    return 0;
+    return false;
   }
-  return 1;
+  return true;
 }
 
-int
+bool
 loadDepth(
-  const std::string &pathDir,
-  cv::Mat &img)
+  const std::string& pathDir,
+  cv::Mat& img,
+  const float& scale=1.0/5000.0)
 {
   img=cv::imread(pathDir, CV_LOAD_IMAGE_ANYDEPTH);
   if(img.empty())
   {
-    return 0;
+    return false;
   }
-  img.convertTo(img, CV_32FC1, 1/1000.0);
-  return 1;
+  img.convertTo(img, CV_32FC1, scale);
+  return true;
 }
 
 int
 loadRGB(
-  const std::string &pathDir,
-  std::vector<cv::Mat> &seqImg)
+  const std::string& pathDir,
+  std::vector<cv::Mat>& seqImg,
+  const int& maxFiles=0)
 {
   struct dirent **fileNameList;
   int nFiles=scandir(pathDir.c_str(), &fileNameList, NULL, alphasort);
@@ -83,24 +88,28 @@ loadRGB(
   {
     return 0;
   }
+  if(nFiles>maxFiles && maxFiles>0)
+  {
+    nFiles=maxFiles+2;
+  }
 
   seqImg.resize(0);
   struct stat fstat;
   std::string fileName;
   cv::Mat img;
   int frames=nFiles;
-  for(int f=0; f<nFiles; f++)
+  for(int f=0; f<nFiles; ++f)
   {
     fileName=fileNameList[f]->d_name;
     fileName=pathDir+"/"+fileName;
     /* check for directories or invalid files */
     if(stat(fileName.c_str(), &fstat)==-1)
     {
-      frames--;
+      --frames;
     }
     else if(S_ISDIR(fstat.st_mode))
     {
-      frames--;
+      --frames;
     }
     else
     {
@@ -110,7 +119,7 @@ loadRGB(
       }
       else
       {
-        frames--;
+        --frames;
       }
     }
     free(fileNameList[f]);
@@ -122,8 +131,9 @@ loadRGB(
 
 int
 loadGray(
-  const std::string &pathDir,
-  std::vector<cv::Mat> &seqImg)
+  const std::string& pathDir,
+  std::vector<cv::Mat>& seqImg,
+  const int& maxFiles=0)
 {
   struct dirent **fileNameList;
   int nFiles=scandir(pathDir.c_str(), &fileNameList, NULL, alphasort);
@@ -131,24 +141,28 @@ loadGray(
   {
     return 0;
   }
+  if(nFiles>maxFiles && maxFiles>0)
+  {
+    nFiles=maxFiles+2;
+  }
 
   seqImg.resize(0);
   struct stat fstat;
   std::string fileName;
   cv::Mat img;
   int frames=nFiles;
-  for(int f=0; f<nFiles; f++)
+  for(int f=0; f<nFiles; ++f)
   {
     fileName=fileNameList[f]->d_name;
     fileName=pathDir+"/"+fileName;
     /* check for directories or invalid files */
     if(stat(fileName.c_str(), &fstat)==-1)
     {
-      frames--;
+      --frames;
     }
     else if(S_ISDIR(fstat.st_mode))
     {
-      frames--;
+      --frames;
     }
     else
     {
@@ -158,7 +172,7 @@ loadGray(
       }
       else
       {
-        frames--;
+        --frames;
       }
     }
     free(fileNameList[f]);
@@ -170,8 +184,10 @@ loadGray(
 
 int
 loadDepth(
-  const std::string &pathDir,
-  std::vector<cv::Mat> &seqImg)
+  const std::string& pathDir,
+  std::vector<cv::Mat>& seqImg,
+  const int& maxFiles=0,
+  const float& scale=1.0/5000.0)
 {
   struct dirent **fileNameList;
   int nFiles=scandir(pathDir.c_str(), &fileNameList, NULL, alphasort);
@@ -179,42 +195,55 @@ loadDepth(
   {
     return 0;
   }
+  if(nFiles>maxFiles && maxFiles>0)
+  {
+    nFiles=maxFiles+2;
+  }
 
   seqImg.resize(0);
   struct stat fstat;
   std::string fileName;
   cv::Mat img;
   int frames=nFiles;
-  for(int f=0; f<nFiles; f++)
+  //double maxVal=-1;
+  for(int f=0; f<nFiles; ++f)
   {
     fileName=fileNameList[f]->d_name;
     fileName=pathDir+"/"+fileName;
     /* check for directories or invalid files */
     if(stat(fileName.c_str(), &fstat)==-1)
     {
-      frames--;
+      --frames;
     }
     else if(S_ISDIR(fstat.st_mode))
     {
-      frames--;
+      --frames;
     }
     else
     {
-      if(loadDepth(fileName, img))
+      if(loadDepth(fileName, img, scale))
       {
         /*double min, max;
         cv::minMaxLoc(img, &min, &max);
-        std::cout<<max<<std::endl;*/
+        if(maxVal<max)
+        {
+          maxVal=max;
+        }*/
         seqImg.push_back(img);
       }
       else
       {
-        frames--;
+        --frames;
       }
     }
     free(fileNameList[f]);
   }
   free(fileNameList);
+
+  /*for(int f=0; f<frames; f++)
+  {
+    seqImg[f].convertTo(seqImg[f], CV_32FC1, 1.0/maxVal);
+  }*/
 
   return frames;
 }
@@ -223,5 +252,4 @@ loadDepth(
 
 }
 
-#endif // IMAGE_IO_HPP
-
+#endif // IMAGE_IO_H

@@ -1,5 +1,5 @@
-#ifndef HUNGARIAN_HPP
-#define HUNGARIAN_HPP
+#ifndef HUNGARIAN_H
+#define HUNGARIAN_H
 
 #include <cassert>
 #include <cmath>
@@ -32,5 +32,4 @@ void hungarian(
 
 }
 
-#endif // HUNGARIAN_HPP
-
+#endif // HUNGARIAN_H

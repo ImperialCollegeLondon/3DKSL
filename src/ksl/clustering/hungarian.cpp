@@ -1,4 +1,4 @@
-#include <ksl/clustering/hungarian.hpp>
+#include <ksl/clustering/hungarian.h>
 
 /*
 Copyright (c) 2004, Markus Buehren
@@ -34,28 +34,37 @@ namespace clustering
 #define HUNGARIAN_CHECK_FOR_INF
 //#define HUNGARIAN_ONE_INDEXING
 
-static inline void assignmentoptimal(float *assignment, float *cost, const float *distMatrixIn, int nOfRows, int nOfColumns);
-static inline void buildassignmentvector(float *assignment, bool *starMatrix, int nOfRows, int nOfColumns);
-static inline void computeassignmentcost(float *assignment, float *cost, const float *distMatrix, int nOfRows);
-static inline void step2a(float *assignment, float *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim);
-static inline void step2b(float *assignment, float *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim);
-static inline void step3 (float *assignment, float *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim);
-static inline void step4 (float *assignment, float *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim, int row, int col);
-static inline void step5 (float *assignment, float *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim);
+template<typename T>
+static inline void assignmentoptimal(T *assignment, T *cost, const T *distMatrixIn, int nOfRows, int nOfColumns);
+template<typename T>
+static inline void buildassignmentvector(T *assignment, bool *starMatrix, int nOfRows, int nOfColumns);
+template<typename T>
+static inline void computeassignmentcost(T *assignment, T *cost, const T *distMatrix, int nOfRows);
+template<typename T>
+static inline void step2a(T *assignment, T *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim);
+template<typename T>
+static inline void step2b(T *assignment, T *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim);
+template<typename T>
+static inline void step3 (T *assignment, T *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim);
+template<typename T>
+static inline void step4 (T *assignment, T *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim, int row, int col);
+template<typename T>
+static inline void step5 (T *assignment, T *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim);
 
+template<typename T>
 void assignmentoptimal(
-  float *assignment, 
-  float *cost, 
-  const float *distMatrixIn, 
+  T *assignment, 
+  T *cost, 
+  const T *distMatrixIn, 
   int nOfRows, 
   int nOfColumns)
 {
-    float *distMatrix, *distMatrixTemp, *distMatrixEnd, *columnEnd, value, minValue;
+    T *distMatrix, *distMatrixTemp, *distMatrixEnd, *columnEnd, value, minValue;
     bool *coveredColumns, *coveredRows, *starMatrix, *newStarMatrix, *primeMatrix;
     int nOfElements, minDim, row, col;
 #ifdef HUNGARIAN_CHECK_FOR_INF
     bool infiniteValueFound;
-    float maxFiniteValue, infValue;
+    T maxFiniteValue, infValue;
 #endif
     
     /* initialization */
@@ -70,8 +79,8 @@ void assignmentoptimal(
     /* generate working copy of distance Matrix */
     /* check if all matrix elements are positive */
     nOfElements   = nOfRows * nOfColumns;
-    //distMatrix    = (float *)mxMalloc(nOfElements * sizeof(float));
-        distMatrix = new float[nOfElements];
+    //distMatrix    = (T *)mxMalloc(nOfElements * sizeof(T));
+        distMatrix = new T[nOfElements];
     distMatrixEnd = distMatrix + nOfElements;
     for(row=0; row<nOfElements; row++)
     {
@@ -219,7 +228,8 @@ void assignmentoptimal(
 }
 
 /********************************************************/
-void buildassignmentvector(float *assignment, bool *starMatrix, int nOfRows, int nOfColumns)
+template<typename T>
+void buildassignmentvector(T *assignment, bool *starMatrix, int nOfRows, int nOfColumns)
 {
     int row, col;
     
@@ -237,11 +247,12 @@ void buildassignmentvector(float *assignment, bool *starMatrix, int nOfRows, int
 }
 
 /********************************************************/
-void computeassignmentcost(float *assignment, float *cost, const float *distMatrix, int nOfRows)
+template<typename T>
+void computeassignmentcost(T *assignment, T *cost, const T *distMatrix, int nOfRows)
 {
     int row, col;
 #ifdef HUNGARIAN_CHECK_FOR_INF
-    float value;
+    T value;
 #endif
     
     for(row=0; row<nOfRows; row++)
@@ -273,7 +284,8 @@ void computeassignmentcost(float *assignment, float *cost, const float *distMatr
 }
 
 /********************************************************/
-void step2a(float *assignment, float *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim)
+template<typename T>
+void step2a(T *assignment, T *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim)
 {
     bool *starMatrixTemp, *columnEnd;
     int col;
@@ -297,7 +309,8 @@ void step2a(float *assignment, float *distMatrix, bool *starMatrix, bool *newSta
 }
 
 /********************************************************/
-void step2b(float *assignment, float *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim)
+template<typename T>
+void step2b(T *assignment, T *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim)
 {
     int col, nOfCoveredColumns;
     
@@ -321,7 +334,8 @@ void step2b(float *assignment, float *distMatrix, bool *starMatrix, bool *newSta
 }
 
 /********************************************************/
-void step3(float *assignment, float *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim)
+template<typename T>
+void step3(T *assignment, T *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim)
 {
     bool zerosFound;
     int row, col, starCol;
@@ -364,7 +378,8 @@ void step3(float *assignment, float *distMatrix, bool *starMatrix, bool *newStar
 }
 
 /********************************************************/
-void step4(float *assignment, float *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim, int row, int col)
+template<typename T>
+void step4(T *assignment, T *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim, int row, int col)
 {   
     int n, starRow, starCol, primeRow, primeCol;
     int nOfElements = nOfRows*nOfColumns;
@@ -418,13 +433,14 @@ void step4(float *assignment, float *distMatrix, bool *starMatrix, bool *newStar
 }
 
 /********************************************************/
-void step5(float *assignment, float *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim)
+template<typename T>
+void step5(T *assignment, T *distMatrix, bool *starMatrix, bool *newStarMatrix, bool *primeMatrix, bool *coveredColumns, bool *coveredRows, int nOfRows, int nOfColumns, int minDim)
 {
-    float h, value;
+    T h, value;
     int row, col;
     
     /* find smallest uncovered element h */
-    h = std::numeric_limits<float>::infinity();
+    h = std::numeric_limits<T>::infinity();
     for(row=0; row<nOfRows; row++)
         if(!coveredRows[row])
             for(col=0; col<nOfColumns; col++)
@@ -459,16 +475,39 @@ void hungarian(
   c_type & c)
 {
   A.resize(D.rows(),1);
-  Eigen::VectorXf Ad(A.rows(),1);
-  assignmentoptimal(Ad.data(),&c,D.data(),D.rows(),D.cols());
-  A = Ad.cast<int>();
+  Eigen::Matrix<c_type, Eigen::Dynamic, 1> Ad(A.rows());
+  assignmentoptimal<c_type>(Ad.data(),&c,D.data(),D.rows(),D.cols());
+  A = Ad.template cast<int>();
 }
 
 // Explicit template instanciation
-//template void hungarian<Eigen::Matrix<double, -1, -1, 0, -1, -1>, Eigen::Matrix<int, -1, 1, 0, -1, 1>, double>(Eigen::PlainObjectBase<Eigen::Matrix<double, -1, -1, 0, -1, -1> > const&, Eigen::PlainObjectBase<Eigen::Matrix<int, -1, 1, 0, -1, 1> >&, double&);
-template void hungarian<Eigen::MatrixXf, Eigen::Matrix<int, -1, 1, 0, -1, 1>, float>(Eigen::PlainObjectBase<Eigen::MatrixXf> const&, Eigen::PlainObjectBase<Eigen::Matrix<int, -1, 1, 0, -1, 1> >&, float&);
+template void assignmentoptimal<double>(double *, double *, const double *, int , int );
+template void assignmentoptimal<float>(float *, float *, const float *, int , int );
+
+template void buildassignmentvector<double>(double *, bool *, int , int );
+template void buildassignmentvector<float>(float *, bool *, int , int );
+
+template void computeassignmentcost<double>(double *, double *, const double *, int );
+template void computeassignmentcost<float>(float *, float *, const float *, int );
+
+template void step2a<double>(double *, double *, bool *, bool *, bool *, bool *, bool *, int , int , int );
+template void step2a<float>(float *, float *, bool *, bool *, bool *, bool *, bool *, int , int , int );
+
+template void step2b<double>(double *, double *, bool *, bool *, bool *, bool *, bool *, int , int , int );
+template void step2b<float>(float *, float *, bool *, bool *, bool *, bool *, bool *, int , int , int );
+
+template void step3<double>(double *, double *, bool *, bool *, bool *, bool *, bool *, int , int , int );
+template void step3<float>(float *, float *, bool *, bool *, bool *, bool *, bool *, int , int , int );
+
+template void step4<double>(double *, double *, bool *, bool *, bool *, bool *, bool *, int , int , int , int , int );
+template void step4<float>(float *, float *, bool *, bool *, bool *, bool *, bool *, int , int , int , int , int );
+
+template void step5<double>(double *, double *, bool *, bool *, bool *, bool *, bool *, int , int , int );
+template void step5<float>(float *, float *, bool *, bool *, bool *, bool *, bool *, int , int , int );
+
+template void hungarian<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>, Eigen::Matrix<int, Eigen::Dynamic, 1>, double>(Eigen::PlainObjectBase<Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> > const&, Eigen::PlainObjectBase<Eigen::Matrix<int, Eigen::Dynamic, 1> >&, double&);
+template void hungarian<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic>, Eigen::Matrix<int, Eigen::Dynamic, 1>, float>(Eigen::PlainObjectBase<Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> > const&, Eigen::PlainObjectBase<Eigen::Matrix<int, Eigen::Dynamic, 1> >&, float&);
 
 }
 
 }
-
