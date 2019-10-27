@@ -21,14 +21,13 @@ Online 3DKSL performs motion segmentation of articulated rigid bodies from RGB-D
 If you use this code in a scientific publication, please cite the following paper:
 
 ```
-@inproceedings{nunes2019online,
-    title           = {Online Unsupervised Learning of the 3D Kinematic Structure of Arbitrary Rigid
-Bodies},
-    author          = {Urbano Miguel Nunes and Yiannis Demiris},
-    booktitle       = {IEEE International Conference on Computer Vision ({ICCV})},
-    year            = {2019, to appear},
-    organization    = {IEEE}
-}
+@inproceedings{nunes19online3Dksl,
+  author    = {Nunes, Urbano Miguel and Demiris, Yiannis},
+  booktitle = {The IEEE International Conference on Computer Vision (ICCV)},
+  month     = {October},
+  title     = {Online Unsupervised Learning of the 3D Kinematic Structure of Arbitrary Rigid Bodies},
+  year      = {2019}
+} 
 ```
 
 # Requirements
