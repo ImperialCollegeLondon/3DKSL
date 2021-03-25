@@ -122,7 +122,7 @@ protected:
   inline void
   buildU(
     const vecT& theta,
-    const vecT& ik, const vecT& jk,
+    const vecI& ik, const vecI& jk,
     const int& a, const int& b,
     mtxT& uMtx) const;
 
@@ -133,20 +133,20 @@ protected:
   evaluateQualityGradient(
     const mtxT& vMtx,
     const vecT& theta,
-    const vecT& ik, const vecT& jk,
+    const vecI& ik, const vecI& jk,
     const int& ind);
 
   inline void
   gradientTheta(
     const vecT& theta,
-    const vecT& ik, const vecT& jk,
+    const vecI& ik, const vecI& jk,
     const int& ind);
 
   inline void
   rotate(
     const mtxT& vMtx,
     const vecT& theta,
-    const vecT& ik, const vecT& jk,
+    const vecI& ik, const vecI& jk,
     mtxT& vRotMtx);
   inline T
   rotateClusters(

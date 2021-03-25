@@ -60,9 +60,9 @@ SpectralClustering<T>::computeClusters(
   laplacian<T>(wMtx, lapMtx);
 
   Spectra::DenseSymMatProd<T> op(lapMtx);
-  Spectra::SymEigsSolver<T, Spectra::LARGEST_ALGE, Spectra::DenseSymMatProd<T> > eig(&op, nEig_, 2*nEig_);
+  Spectra::SymEigsSolver<Spectra::DenseSymMatProd<T> > eig(op, nEig_, 2*nEig_);
   eig.init();
-  eig.compute(1000, params_.eps);
+  eig.compute(Spectra::SortRule::LargestAlge, 1000, params_.eps);
   const mtxT vMtx(eig.eigenvectors());
 
   if(this->bparams_.nClusters==0)
@@ -93,7 +93,7 @@ template<typename T>
 void
 SpectralClustering<T>::buildU(
   const vecT& theta,
-  const vecT& ik, const vecT& jk,
+  const vecI& ik, const vecI& jk,
   const int& a, const int& b,
   mtxT& uMtx) const
 {
@@ -135,7 +135,7 @@ T
 SpectralClustering<T>::evaluateQualityGradient(
   const mtxT& vMtx,
   const vecT& theta,
-  const vecT& ik, const vecT& jk,
+  const vecI& ik, const vecI& jk,
   const int& ind)
 {
   gradientTheta(theta, ik, jk, ind);
@@ -178,7 +178,7 @@ template<typename T>
 void
 SpectralClustering<T>::gradientTheta(
   const vecT& theta,
-  const vecT& ik, const vecT& jk,
+  const vecI& ik, const vecI& jk,
   const int& ind)
 {
   const T cosTheta=std::cos(theta(ind)), sinTheta=std::sin(theta(ind));
@@ -193,7 +193,7 @@ void
 SpectralClustering<T>::rotate(
   const mtxT& vMtx,
   const vecT& theta,
-  const vecT& ik, const vecT& jk,
+  const vecI& ik, const vecI& jk,
   mtxT& vRotMtx)
 {
   buildU(theta, ik, jk, 0, nAngles_, uMtx_);
@@ -212,7 +212,7 @@ SpectralClustering<T>::rotateClusters(
 
   vecT curTheta(nAngles_), newTheta(nAngles_);
   curTheta.setZero(), newTheta.setZero();
-  vecT ik(nAngles_), jk(nAngles_);
+  vecI ik(nAngles_), jk(nAngles_);
   int k=0;
   for(int i=0; i<nDims_-1; ++i)
   {

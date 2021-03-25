@@ -114,15 +114,15 @@ NonMetricTwoViews<T>::computeTwoViews(
 
   if(params_.nEig>0)
   {
+    Spectra::DenseSymMatProd<T> op(mtx);
+    Spectra::SymEigsSolver<Spectra::DenseSymMatProd<T> > eig(op, params_.nEig, 2*params_.nEig+1);
+    eig.init();
     if(params_.useNeg)
     {
-      Spectra::DenseSymMatProd<T> op(mtx);
-      Spectra::SymEigsSolver<T, Spectra::LARGEST_MAGN, Spectra::DenseSymMatProd<T> > eig(&op, params_.nEig, 2*params_.nEig+1);
-      eig.init();
       try
       {
-        eig.compute(1000, params_.eps);
-        if(eig.info()!=Spectra::SUCCESSFUL)
+        eig.compute(Spectra::SortRule::LargestMagn, 1000, params_.eps);
+        if(eig.info()!=Spectra::CompInfo::Successful)
         {
           std::cout<<"[Non-metric View using neg] eigendecomposition not successful"<<std::endl;
           vMtx_.resize(0, 0);
@@ -143,13 +143,10 @@ NonMetricTwoViews<T>::computeTwoViews(
     }
     else
     {
-      Spectra::DenseSymMatProd<T> op(mtx);
-      Spectra::SymEigsSolver<T, Spectra::LARGEST_ALGE, Spectra::DenseSymMatProd<T> > eig(&op, params_.nEig, 2*params_.nEig+1);
-      eig.init();
       try
       {
-        eig.compute(1000, params_.eps);
-        if(eig.info()!=Spectra::SUCCESSFUL)
+        eig.compute(Spectra::SortRule::LargestAlge, 1000, params_.eps);
+        if(eig.info()!=Spectra::CompInfo::Successful)
         {
           std::cout<<"[Non-metric View] eigendecomposition not successful"<<std::endl;
           vMtx_.resize(0, 0);

@@ -145,12 +145,12 @@ LabelPropagation<T>::computeClusters(
     {
       laplacian<T>(wcMtx[k], lapMtx, dVec);
       Spectra::DenseSymMatProd<T> op(lapMtx);
-      Spectra::SymEigsSolver<T, Spectra::LARGEST_ALGE, Spectra::DenseSymMatProd<T> > eig(&op, 2, 2*2+1);
+      Spectra::SymEigsSolver<Spectra::DenseSymMatProd<T> > eig(op, 2, 2*2+1);
       eig.init();
       try
       {
-        eig.compute(1000, params_.eps);
-        if(eig.info()!=Spectra::SUCCESSFUL)
+        eig.compute(Spectra::SortRule::LargestAlge, 1000, params_.eps);
+        if(eig.info()!=Spectra::CompInfo::Successful)
         {
           std::cout<<"[Label Propagation] eigendecomposition not successful"<<std::endl;
           continue;
